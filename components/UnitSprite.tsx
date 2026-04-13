@@ -2,18 +2,18 @@ import { motion, AnimatePresence } from 'motion/react';
 import { BattleUnit } from '@/lib/battleTypes';
 import { ElementalParticles } from './ElementalParticles';
 
-export function UnitSprite({ unit, onClick, interactive, hitEffectElement }: { unit: BattleUnit, onClick?: () => void, interactive?: boolean, hitEffectElement?: string | null }) {
+export function UnitSprite({ unit, onClick, interactive, hitEffectElement, hideStats }: { unit: BattleUnit, onClick?: () => void, interactive?: boolean, hitEffectElement?: string | null, hideStats?: boolean }) {
   const hpPercent = (unit.hp / unit.maxHp) * 100;
   const bbPercent = (unit.bbGauge / unit.maxBb) * 100;
   const isBbReady = unit.bbGauge >= unit.maxBb;
 
   const variants: any = {
     idle: { y: [0, -4, 0], transition: { repeat: Infinity, duration: 2, ease: "easeInOut" } },
-    attacking: { y: unit.isPlayer ? -40 : 40, scale: 1.1, zIndex: 20, transition: { type: "spring", stiffness: 400, damping: 15 } },
+    attacking: { x: unit.isPlayer ? -60 : 60, scale: 1.1, zIndex: 20, transition: { type: "spring", stiffness: 400, damping: 15 } },
     skill: { 
-      y: unit.isPlayer ? [-20, -80, -60] : [20, 80, 60], 
+      x: unit.isPlayer ? [-40, -120, -80] : [40, 120, 80],
       scale: [1, 1.5, 1.3], 
-      rotate: [0, -5, 5, 0],
+      rotate: [0, unit.isPlayer ? -5 : 5, unit.isPlayer ? 5 : -5, 0],
       filter: ["brightness(1)", "brightness(2) drop-shadow(0 0 25px rgba(250,204,21,1))", "brightness(1.5) drop-shadow(0 0 15px rgba(250,204,21,0.8))"], 
       zIndex: 30, 
       transition: { duration: 0.4, times: [0, 0.5, 1] } 
@@ -38,23 +38,25 @@ export function UnitSprite({ unit, onClick, interactive, hitEffectElement }: { u
       animate={unit.isDead ? "dead" : unit.actionState}
     >
       {/* Status Bars */}
-      <div className="w-16 mb-2 flex flex-col gap-[2px] z-10">
-        <div className="h-1.5 w-full bg-zinc-950/80 rounded-full overflow-hidden border border-zinc-800/50">
-          <div className="h-full bg-green-500 transition-all duration-300" style={{ width: `${hpPercent}%` }} />
-        </div>
-        {unit.isPlayer && (
+      {!hideStats && (
+        <div className="w-16 mb-2 flex flex-col gap-[2px] z-10">
           <div className="h-1.5 w-full bg-zinc-950/80 rounded-full overflow-hidden border border-zinc-800/50">
-            <div className={`h-full transition-all duration-300 ${isBbReady ? 'bg-yellow-400 animate-pulse' : 'bg-blue-500'}`} style={{ width: `${bbPercent}%` }} />
+            <div className="h-full bg-green-500 transition-all duration-300" style={{ width: `${hpPercent}%` }} />
           </div>
-        )}
-      </div>
+          {unit.isPlayer && (
+            <div className="h-1.5 w-full bg-zinc-950/80 rounded-full overflow-hidden border border-zinc-800/50">
+              <div className={`h-full transition-all duration-300 ${isBbReady ? 'bg-yellow-400 animate-pulse' : 'bg-blue-500'}`} style={{ width: `${bbPercent}%` }} />
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Sprite */}
       <div className={`relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center ${unit.queuedBb ? 'drop-shadow-[0_0_15px_rgba(250,204,21,0.8)]' : ''}`}>
         <img 
           src={unit.template.spriteUrl} 
           alt={unit.template.name} 
-          className="w-full h-full object-contain drop-shadow-lg" 
+          className={`w-full h-full object-contain drop-shadow-lg ${!unit.isPlayer ? '-scale-x-100' : ''}`}
           style={{ imageRendering: 'pixelated' }} 
         />
         {unit.queuedBb && (
@@ -96,9 +98,11 @@ export function UnitSprite({ unit, onClick, interactive, hitEffectElement }: { u
       </div>
       
       {/* Element Indicator */}
-      <div className="absolute -bottom-3 bg-zinc-900/80 border border-zinc-700 text-[9px] font-bold px-1.5 py-0.5 rounded text-zinc-300 backdrop-blur-sm">
-        {unit.template.element}
-      </div>
+      {!hideStats && (
+        <div className="absolute -bottom-3 bg-zinc-900/80 border border-zinc-700 text-[9px] font-bold px-1.5 py-0.5 rounded text-zinc-300 backdrop-blur-sm">
+          {unit.template.element}
+        </div>
+      )}
     </motion.div>
   );
 }

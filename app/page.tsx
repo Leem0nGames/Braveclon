@@ -139,30 +139,50 @@ export default function GameApp() {
             {currentScreen === 'home' && <HomeScreen onNavigate={handleNavigation} />}
             {currentScreen === 'units' && (
               <UnitsScreen
-                team={state.team}
-                inventory={state.inventory}
-                equipment={state.equipmentInventory}
-                onSetTeamMember={setTeamMember}
-                onEquipItem={equipItem}
-                onUnequipItem={unequipItem}
-                onFusion={() => setCurrentScreen('fusion')}
+                state={state}
+                setTeamMember={setTeamMember}
+                equipItem={equipItem}
+                unequipItem={unequipItem}
+                onNavigateToFusion={(unitId) => {
+                  setFusionTargetId(unitId);
+                  setCurrentScreen('fusion');
+                }}
               />
             )}
             {currentScreen === 'summon' && (
-              <SummonScreen gems={state.gems} onSummon={addUnit} onSpendGems={spendGems} />
+              <SummonScreen
+                state={state}
+                addUnit={addUnit}
+                spendGems={spendGems}
+                rollGacha={rollGacha}
+                onAlert={(msg) => {
+                  setAlertMessage(msg);
+                  setShowAlert(true);
+                  setTimeout(() => setShowAlert(false), 3000);
+                }}
+              />
             )}
             {currentScreen === 'quest' && <QuestScreen onStartBattle={startBattle} />}
             {currentScreen === 'qrhunt' && (
-              <QRHuntScreen scansToday={state.qrState.scansToday} onScan={processQrScan} />
+              <QRHuntScreen
+                state={state}
+                onScan={processQrScan}
+                onBack={() => setCurrentScreen('home')}
+              />
             )}
             {currentScreen === 'fusion' && fusionTargetId && (
               <FusionScreen
-                targetUnit={state.inventory.find(u => u.instanceId === fusionTargetId)!}
-                inventory={state.inventory}
-                onFuse={fuseUnits}
-                onClose={() => {
+                state={state}
+                targetInstanceId={fusionTargetId}
+                fuseUnits={fuseUnits}
+                onBack={() => {
                   setFusionTargetId(null);
                   setCurrentScreen('units');
+                }}
+                onAlert={(msg) => {
+                  setAlertMessage(msg);
+                  setShowAlert(true);
+                  setTimeout(() => setShowAlert(false), 3000);
                 }}
               />
             )}

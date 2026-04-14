@@ -352,7 +352,10 @@ export default function BattleScreen({ stage, playerTeam, equipmentInventory, on
 
         {/* HUD Elements */}
         <div className="absolute top-4 left-4 right-4 flex justify-between items-start z-30 pointer-events-none">
-           <div className="bg-black/60 backdrop-blur-md p-2 rounded-lg border border-white/10 text-[10px] font-mono w-48 shadow-xl">
+           <div
+             className="bg-black/60 backdrop-blur-md p-2 rounded-lg border border-white/10 text-[10px] font-mono w-48 shadow-xl"
+             aria-live="polite"
+           >
              {combatLog.map((log, i) => (
                <div key={i} className={`${i === combatLog.length - 1 ? 'text-amber-400 font-bold' : 'text-zinc-400'}`}>
                  {log}
@@ -373,23 +376,28 @@ export default function BattleScreen({ stage, playerTeam, equipmentInventory, on
 
           const hasActed = unitsActed.has(unit.id);
           const bbReady = unit.bbGauge >= unit.maxBb;
+          const hpPercent = Math.round((unit.hp / unit.maxHp) * 100);
+          const bbStatus = bbReady ? "Brave Burst Ready" : "Brave Burst Charging";
 
           return (
-            <motion.div
+            <motion.button
               key={unit.id}
+              type="button"
               whileTap={!hasActed ? { scale: 0.95 } : {}}
-              className={`relative overflow-hidden rounded-xl border-2 transition-all cursor-pointer group ${
-                hasActed
-                  ? 'border-zinc-800 grayscale brightness-50'
+              className={`relative overflow-hidden rounded-xl border-2 transition-all group focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none ${
+                hasActed || unit.isDead || turnState !== 'player_input'
+                  ? 'border-zinc-800 grayscale brightness-50 cursor-not-allowed'
                   : bbReady
-                    ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.4)]'
-                    : 'border-zinc-700 active:border-zinc-400'
+                    ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.4)] cursor-pointer'
+                    : 'border-zinc-700 active:border-zinc-400 cursor-pointer'
               } ${unit.isDead ? 'opacity-50 grayscale' : ''}`}
               onClick={() => handleUnitAction(unit.id)}
               onContextMenu={(e) => {
                 e.preventDefault();
                 toggleBb(unit.id);
               }}
+              aria-label={`${unit.template.name}, HP: ${hpPercent}%, ${bbStatus}${unit.isDead ? ', Fainted' : ''}${hasActed ? ', Acted this turn' : ''}`}
+              disabled={hasActed || unit.isDead || turnState !== 'player_input'}
             >
               {/* Background gradient based on element */}
               <div className={`absolute inset-0 opacity-20 bg-gradient-to-br ${
@@ -447,7 +455,7 @@ export default function BattleScreen({ stage, playerTeam, equipmentInventory, on
                   <span className="text-[8px] font-bold text-amber-300 animate-bounce">TAP FOR BB</span>
                 </div>
               )}
-            </motion.div>
+            </motion.button>
           );
         })}
 
@@ -455,8 +463,9 @@ export default function BattleScreen({ stage, playerTeam, equipmentInventory, on
         {turnState === 'player_input' && (
           <div className="absolute -top-12 right-4 flex gap-2">
             <button
+              type="button"
               onClick={autoFight}
-              className="px-6 py-2 bg-gradient-to-b from-indigo-500 to-indigo-700 rounded-full border-2 border-indigo-400 text-xs font-black tracking-widest text-white shadow-lg active:scale-95 transition-transform"
+              className="px-6 py-2 bg-gradient-to-b from-indigo-500 to-indigo-700 rounded-full border-2 border-indigo-400 text-xs font-black tracking-widest text-white shadow-lg active:scale-95 transition-transform focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none cursor-pointer"
             >
               AUTO
             </button>

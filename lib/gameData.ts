@@ -45,7 +45,7 @@ export interface EquipmentTemplate {
   icon: string;
 }
 
-export type SkillType = 'damage' | 'heal' | 'buff';
+export type SkillType = 'damage' | 'heal' | 'buff' | 'leader' | 'extra';
 
 export interface Skill {
   id: string;
@@ -54,6 +54,18 @@ export interface Skill {
   description: string;
   power: number; // Multiplier for damage or heal
   cost: number; // BB gauge cost
+  target?: 'self' | 'ally' | 'all_allies' | 'enemy' | 'all_enemies';
+  turns?: number; // Duration for buffs
+}
+
+// Leader skill - passive buff to team
+export interface LeaderSkill {
+  id: string;
+  name: string;
+  description: string;
+  statBoost?: Partial<Stats>; // e.g., { atk: 0.5 } = +50% ATK
+  elementBoost?: Partial<Record<Element, number>>; // e.g., { Fire: 0.25 } = +25% Fire damage
+  damageReduction?: number; // e.g., 0.2 = 20% damage reduction
 }
 
 export interface UnitTemplate {
@@ -65,6 +77,8 @@ export interface UnitTemplate {
   growthRate: Stats; // Stats gained per level
   maxLevel: number;
   skill: Skill;
+  leaderSkill?: LeaderSkill; // Passive buff when leading the team
+  extraSkill?: Skill; // Secondary skill (unlocks at certain conditions)
   spriteUrl?: string;
   evolutionTarget?: string; // ID of the unit it evolves into
   evolutionMaterials?: string[]; // Array of unit IDs required to evolve
@@ -108,13 +122,13 @@ export const UNIT_DATABASE: Record<string, UnitTemplate> = {
   'mat_light': { id: 'mat_light', name: 'Light Nymph', element: 'Light', rarity: 1, baseStats: { hp: 100, atk: 10, def: 10, rec: 10 }, growthRate: { hp: 0, atk: 0, def: 0, rec: 0 }, maxLevel: 1, skill: { id: 's_mat', name: 'None', type: 'damage', description: 'Material', power: 0, cost: 999 }, spriteUrl: `${BASE_URL}/abbys_sprite_021.png` },
   'mat_dark': { id: 'mat_dark', name: 'Dark Nymph', element: 'Dark', rarity: 1, baseStats: { hp: 100, atk: 10, def: 10, rec: 10 }, growthRate: { hp: 0, atk: 0, def: 0, rec: 0 }, maxLevel: 1, skill: { id: 's_mat', name: 'None', type: 'damage', description: 'Material', power: 0, cost: 999 }, spriteUrl: `${BASE_URL}/abbys_sprite_020.png` },
 
-  // Evolved Forms (4-star)
-  'u1_4': { id: 'u1_4', name: 'Ignis Vargas', element: 'Fire', rarity: 4, baseStats: { hp: 1800, atk: 600, def: 450, rec: 300 }, growthRate: { hp: 50, atk: 20, def: 15, rec: 10 }, maxLevel: 60, skill: { id: 's1_4', name: 'Burst Flare', type: 'damage', description: 'Strong Fire damage to all enemies', power: 1.8, cost: 24 }, spriteUrl: `${BASE_URL}/abbys_sprite_001.png` },
-  'u2_4': { id: 'u2_4', name: 'Aqua Selena', element: 'Water', rarity: 4, baseStats: { hp: 1650, atk: 500, def: 500, rec: 450 }, growthRate: { hp: 45, atk: 16, def: 16, rec: 14 }, maxLevel: 60, skill: { id: 's2_4', name: 'Glacial Dance', type: 'heal', description: 'Greatly heals all allies', power: 1.5, cost: 28 }, spriteUrl: `${BASE_URL}/abbys_sprite_002.png` },
-  'u3_4': { id: 'u3_4', name: 'Terra Lance', element: 'Earth', rarity: 4, baseStats: { hp: 1950, atk: 450, def: 600, rec: 250 }, growthRate: { hp: 55, atk: 14, def: 20, rec: 8 }, maxLevel: 60, skill: { id: 's3_4', name: 'Grand Pike', type: 'damage', description: 'Strong Earth damage to all enemies', power: 1.8, cost: 24 }, spriteUrl: `${BASE_URL}/abbys_sprite_003.png` },
-  'u4_4': { id: 'u4_4', name: 'Bolt Eze', element: 'Thunder', rarity: 4, baseStats: { hp: 1500, atk: 650, def: 350, rec: 300 }, growthRate: { hp: 40, atk: 24, def: 12, rec: 10 }, maxLevel: 60, skill: { id: 's4_4', name: 'Thunder Storm', type: 'damage', description: 'Strong Thunder damage to all enemies', power: 1.9, cost: 26 }, spriteUrl: `${BASE_URL}/abbys_sprite_004.png` },
-  'u5_4': { id: 'u5_4', name: 'Lux Atro', element: 'Light', rarity: 4, baseStats: { hp: 1700, atk: 550, def: 550, rec: 350 }, growthRate: { hp: 48, atk: 18, def: 18, rec: 12 }, maxLevel: 60, skill: { id: 's5_4', name: 'Divine Light', type: 'damage', description: 'Strong Light damage to all enemies', power: 1.8, cost: 24 }, spriteUrl: `${BASE_URL}/abbys_sprite_005.png` },
-  'u6_4': { id: 'u6_4', name: 'Nox Magress', element: 'Dark', rarity: 4, baseStats: { hp: 2100, atk: 480, def: 650, rec: 150 }, growthRate: { hp: 60, atk: 15, def: 22, rec: 6 }, maxLevel: 60, skill: { id: 's6_4', name: 'Abyssal Guard', type: 'damage', description: 'Strong Dark damage to all enemies', power: 1.7, cost: 24 }, spriteUrl: `${BASE_URL}/abbys_sprite_006.png` },
+  // Evolved Forms (4-star) - with leader skills
+  'u1_4': { id: 'u1_4', name: 'Ignis Vargas', element: 'Fire', rarity: 4, baseStats: { hp: 1800, atk: 600, def: 450, rec: 300 }, growthRate: { hp: 50, atk: 20, def: 15, rec: 10 }, maxLevel: 60, skill: { id: 's1_4', name: 'Burst Flare', type: 'damage', description: 'Strong Fire damage to all enemies', power: 1.8, cost: 24 }, leaderSkill: { id: 'ls1_4', name: 'Fire Lord', description: '+30% Fire damage to team', elementBoost: { Fire: 0.3 } }, spriteUrl: `${BASE_URL}/abbys_sprite_001.png` },
+  'u2_4': { id: 'u2_4', name: 'Aqua Selena', element: 'Water', rarity: 4, baseStats: { hp: 1650, atk: 500, def: 500, rec: 450 }, growthRate: { hp: 45, atk: 16, def: 16, rec: 14 }, maxLevel: 60, skill: { id: 's2_4', name: 'Glacial Dance', type: 'heal', description: 'Greatly heals all allies', power: 1.5, cost: 28 }, leaderSkill: { id: 'ls2_4', name: 'Water Guardian', description: '+30% Water damage to team', elementBoost: { Water: 0.3 } }, spriteUrl: `${BASE_URL}/abbys_sprite_002.png` },
+  'u3_4': { id: 'u3_4', name: 'Terra Lance', element: 'Earth', rarity: 4, baseStats: { hp: 1950, atk: 450, def: 600, rec: 250 }, growthRate: { hp: 55, atk: 14, def: 20, rec: 8 }, maxLevel: 60, skill: { id: 's3_4', name: 'Grand Pike', type: 'damage', description: 'Strong Earth damage to all enemies', power: 1.8, cost: 24 }, leaderSkill: { id: 'ls3_4', name: 'Earth Warden', description: '+30% Earth damage to team', elementBoost: { Earth: 0.3 } }, spriteUrl: `${BASE_URL}/abbys_sprite_003.png` },
+  'u4_4': { id: 'u4_4', name: 'Bolt Eze', element: 'Thunder', rarity: 4, baseStats: { hp: 1500, atk: 650, def: 350, rec: 300 }, growthRate: { hp: 40, atk: 24, def: 12, rec: 10 }, maxLevel: 60, skill: { id: 's4_4', name: 'Thunder Storm', type: 'damage', description: 'Strong Thunder damage to all enemies', power: 1.9, cost: 26 }, leaderSkill: { id: 'ls4_4', name: 'Thunder Lord', description: '+30% Thunder damage to team', elementBoost: { Thunder: 0.3 } }, spriteUrl: `${BASE_URL}/abbys_sprite_004.png` },
+  'u5_4': { id: 'u5_4', name: 'Lux Atro', element: 'Light', rarity: 4, baseStats: { hp: 1700, atk: 550, def: 550, rec: 350 }, growthRate: { hp: 48, atk: 18, def: 18, rec: 12 }, maxLevel: 60, skill: { id: 's5_4', name: 'Divine Light', type: 'damage', description: 'Strong Light damage to all enemies', power: 1.8, cost: 24 }, leaderSkill: { id: 'ls5_4', name: 'Light Bearer', description: '+30% Light damage to team', elementBoost: { Light: 0.3 } }, spriteUrl: `${BASE_URL}/abbys_sprite_005.png` },
+  'u6_4': { id: 'u6_4', name: 'Nox Magress', element: 'Dark', rarity: 4, baseStats: { hp: 2100, atk: 480, def: 650, rec: 150 }, growthRate: { hp: 60, atk: 15, def: 22, rec: 6 }, maxLevel: 60, skill: { id: 's6_4', name: 'Abyssal Guard', type: 'damage', description: 'Strong Dark damage to all enemies', power: 1.7, cost: 24 }, leaderSkill: { id: 'ls6_4', name: 'Dark Shield', description: '+15% damage reduction to team', damageReduction: 0.15 }, spriteUrl: `${BASE_URL}/abbys_sprite_006.png` },
 
   'u1': {
     id: 'u1',
@@ -365,10 +379,23 @@ export const ENEMIES: UnitTemplate[] = [
 ];
 
 export const STAGES: StageTemplate[] = [
+  // Region 1: Mistral (basic areas)
   { id: 1, name: "Mistral", area: "Adventurer's Prairie", energy: 3, description: "Where it all begins.", enemies: ['e1', 'e2', 'e1'], expReward: 50, zelReward: 200, equipmentDrops: ['eq_w1', 'eq_a1'], equipmentDropChance: 0.3 },
   { id: 2, name: "Mistral", area: "Cave of Flames", energy: 4, description: "A hot challenge.", enemies: ['e3', 'e3', 'e1'], expReward: 80, zelReward: 350, equipmentDrops: ['eq_w2', 'eq_ac2'], equipmentDropChance: 0.3 },
+  
+  // Region 2: Morgan (mid areas)
   { id: 3, name: "Morgan", area: "Destroyed Cathedral", energy: 5, description: "Ruins of the past.", enemies: ['e5', 'e6', 'e5'], expReward: 120, zelReward: 500, equipmentDrops: ['eq_w4', 'eq_ac1'], equipmentDropChance: 0.35 },
   { id: 4, name: "St. Lamia", area: "Blood Forest", energy: 6, description: "Beware the harpies.", enemies: ['e4', 'e2', 'e4'], expReward: 180, zelReward: 800, equipmentDrops: ['eq_a2', 'eq_ac3'], equipmentDropChance: 0.4 },
+  
+  // Region 3: New areas (expansion)
+  { id: 5, name: "Mysras", area: "Frozen Wasteland", energy: 7, description: "Endless ice plains.", enemies: ['e1', 'e7', 'e1'], expReward: 250, zelReward: 1200, equipmentDrops: ['eq_a3', 'eq_ac4'], equipmentDropChance: 0.45 },
+  { id: 6, name: "Mysras", area: "Crystal Caverns", energy: 8, description: "Beautiful but dangerous.", enemies: ['e7', 'e7', 'e3'], expReward: 350, zelReward: 1800, equipmentDrops: ['eq_w3', 'eq_ac3'], equipmentDropChance: 0.5 },
+  
+  // Region 4: Tower/Babel
+  { id: 7, name: "Babel", area: "Tower of Babel - Floor 1", energy: 9, description: "The tower rises...", enemies: ['e8', 'e8', 'e1'], expReward: 500, zelReward: 2500, equipmentDrops: ['eq_w4', 'eq_a4'], equipmentDropChance: 0.55 },
+  { id: 8, name: "Babel", area: "Tower of Babel - Floor 10", energy: 10, description: "Climb higher!", enemies: ['e8', 'e9', 'e8'], expReward: 700, zelReward: 3500, equipmentDrops: ['eq_ac4'], equipmentDropChance: 0.6 },
+  { id: 9, name: "Babel", area: "Tower of Babel - Floor 20", energy: 12, description: "The final challenge nears.", enemies: ['e9', 'e9', 'e8', 'e5'], expReward: 1000, zelReward: 5000, equipmentDrops: [], equipmentDropChance: 0.7 },
+  { id: 10, name: "Babel", area: "Tower of Babel - Floor 30", energy: 15, description: "Only the brave survive.", enemies: ['e10', 'e10', 'e9', 'e5', 'e6'], expReward: 1500, zelReward: 8000, equipmentDrops: [], equipmentDropChance: 0.8 },
 ];
 
 export const GACHA_POOL: GachaRate[] = [
@@ -408,24 +435,23 @@ export const EQUIPMENT_DATABASE: Record<string, EquipmentTemplate> = {
 };
 
 export function getExpForLevel(level: number): number {
-  return level * 100;
+  // Exponential curve: 100 * 1.15^level
+  if (level <= 0) return 0;
+  return Math.floor(100 * Math.pow(1.15, level));
 }
 
 export function getElementMultiplier(attacker: Element, defender: Element): number {
-  if (attacker === 'Fire' && defender === 'Earth') return 2.0;
-  if (attacker === 'Earth' && defender === 'Thunder') return 2.0;
-  if (attacker === 'Thunder' && defender === 'Water') return 2.0;
-  if (attacker === 'Water' && defender === 'Fire') return 2.0;
+  // Full elemental matrix (6 elements)
+  const matrix: Record<Element, Partial<Record<Element, number>>> = {
+    Fire:    { Fire: 0.5, Water: 0.5, Earth: 2.0, Thunder: 1.0, Light: 1.0, Dark: 1.0 },
+    Water:   { Fire: 2.0, Water: 0.5, Earth: 1.0, Thunder: 2.0, Light: 1.0, Dark: 1.0 },
+    Earth:  { Fire: 1.0, Water: 1.0, Earth: 0.5, Thunder: 2.0, Light: 1.0, Dark: 1.0 },
+    Thunder:{ Fire: 1.0, Water: 0.5, Earth: 0.5, Thunder: 0.5, Light: 1.0, Dark: 1.0 },
+    Light:  { Fire: 1.0, Water: 1.0, Earth: 1.0, Thunder: 1.0, Light: 0.5, Dark: 2.0 },
+    Dark:   { Fire: 1.0, Water: 1.0, Earth: 1.0, Thunder: 1.0, Light: 2.0, Dark: 0.5 },
+  };
   
-  if (attacker === 'Earth' && defender === 'Fire') return 0.5;
-  if (attacker === 'Thunder' && defender === 'Earth') return 0.5;
-  if (attacker === 'Water' && defender === 'Thunder') return 0.5;
-  if (attacker === 'Fire' && defender === 'Water') return 0.5;
-
-  if (attacker === 'Light' && defender === 'Dark') return 2.0;
-  if (attacker === 'Dark' && defender === 'Light') return 2.0;
-
-  return 1.0;
+  return matrix[attacker]?.[defender] ?? 1.0;
 }
 
 export function getFusionCost(targetLevel: number, materialCount: number): number {

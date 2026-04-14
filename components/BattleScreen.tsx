@@ -30,7 +30,12 @@ export default function BattleScreen({ state, stageId, onEnd }: { state: PlayerS
         )}
       </AnimatePresence>
 
-      <BattleTopHud zel={state.zel} gems={state.gems} />
+      <BattleTopHud 
+        zel={state.zel} 
+        gems={state.gems} 
+        turnCount={battleState.turnCount} 
+        battlePhase={battleState.turnState} 
+      />
       
       <BattleArena battleState={battleState} />
 

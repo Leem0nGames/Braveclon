@@ -3,6 +3,8 @@ import { motion, AnimatePresence, Variants } from 'motion/react';
 import { BattleUnit } from '@/lib/battleTypes';
 import { ElementalParticles } from './ElementalParticles';
 import { ELEMENT_ICONS } from '@/lib/gameData';
+import { StatBar } from './ui/StatBar';
+import { COLORS } from '@/lib/design-tokens';
 
 export function UnitSprite({ unit, onClick, interactive, hitEffectElement, hideStatusBars, isItemSelected }: { unit: BattleUnit, onClick?: () => void, interactive?: boolean, hitEffectElement?: string | null, hideStatusBars?: boolean, isItemSelected?: boolean }) {
   const hpPercent = (unit.hp / unit.maxHp) * 100;
@@ -63,19 +65,23 @@ export function UnitSprite({ unit, onClick, interactive, hitEffectElement, hideS
       {/* Status Bars */}
       {!hideStatusBars && (
         <div className="w-16 mb-2 flex flex-col gap-[2px] z-10">
-          <div className="h-1.5 w-full bg-zinc-950/80 rounded-full overflow-hidden border border-zinc-800/50">
-            <div className="h-full bg-green-500 transition-all duration-300" style={{ width: `${hpPercent}%` }} />
-          </div>
+          <StatBar current={unit.hp} max={unit.maxHp} type="hp" size="sm" animated={false} />
           {unit.isPlayer && (
-            <div className="h-1.5 w-full bg-zinc-950/80 rounded-full overflow-hidden border border-zinc-800/50">
-              <div className={`h-full transition-all duration-300 ${isBbReady ? 'bg-yellow-400 animate-pulse' : 'bg-blue-500'}`} style={{ width: `${bbPercent}%` }} />
-            </div>
+            <StatBar current={unit.bbGauge} max={unit.maxBb} type="bb" size="sm" animated={false} />
           )}
         </div>
       )}
 
-      {/* Sprite */}
-      <div className={`relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center ${unit.queuedBb ? 'drop-shadow-[0_0_15px_rgba(250,204,21,0.8)]' : ''}`}>
+      {/* Sprite with rarity frame */}
+      <div className={`
+        relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center rounded-xl border-2 overflow-hidden
+        ${unit.queuedBb ? 'drop-shadow-[0_0_15px_rgba(250,204,21,0.8)]' : ''}
+        ${unit.template.rarity >= 5 ? 'border-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.6)]' : 
+          unit.template.rarity >= 4 ? 'border-purple-400 shadow-[0_0_8px_rgba(192,132,252,0.5)]' :
+          unit.template.rarity >= 3 ? 'border-blue-400' : 'border-zinc-600'}
+        ${unit.isDead ? 'opacity-50 grayscale' : ''}
+        bg-zinc-900
+      `}>
         <img 
           src={unit.template.spriteUrl} 
           alt={unit.template.name} 

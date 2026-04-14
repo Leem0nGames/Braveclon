@@ -4,6 +4,8 @@ import { PlayerState } from '@/lib/gameState';
 import { UNIT_DATABASE, getEvolutionCost } from '@/lib/gameData';
 import { X, ArrowRight, Check, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { UnitFrame } from './UnitFrame';
+import { UnitDisplay } from './ui/UnitDisplay';
 
 export default function EvolutionScreen({ 
   state, 
@@ -108,35 +110,32 @@ export default function EvolutionScreen({
           <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl" />
           
           <div className="flex flex-col items-center">
-            <div className="w-20 h-20 bg-zinc-800 rounded-xl border-2 border-zinc-500/50 relative overflow-hidden z-10">
-              <img 
-                src={targetTemplate.spriteUrl} 
-                alt={targetTemplate.name} 
-                className="w-full h-full object-cover scale-[2.5] origin-[50%_20%]" 
-                style={{ imageRendering: 'pixelated' }} 
-              />
-            </div>
+            <UnitDisplay
+              spriteUrl={targetTemplate.spriteUrl}
+              name={targetTemplate.name}
+              rarity={targetTemplate.rarity}
+              element={targetTemplate.element}
+              size="md"
+            />
             <span className="text-xs font-bold mt-2 text-zinc-400">{targetTemplate.name}</span>
-            <div className="flex text-yellow-400 text-[10px] mt-1">
-              {Array.from({ length: targetTemplate.rarity }).map((_, i) => <span key={i}>★</span>)}
-            </div>
           </div>
 
           <ArrowRight className="text-zinc-600" size={24} />
 
           <div className="flex flex-col items-center">
-            <div className={`w-20 h-20 bg-zinc-800 rounded-xl border-2 relative overflow-hidden z-10 ${canEvolve ? 'border-purple-500/50' : 'border-zinc-700 opacity-50'}`}>
-              {evolutionTargetTemplate ? (
-                <img 
-                  src={evolutionTargetTemplate.spriteUrl} 
-                  alt={evolutionTargetTemplate.name} 
-                  className="w-full h-full object-cover scale-[2.5] origin-[50%_20%]" 
-                  style={{ imageRendering: 'pixelated' }} 
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-zinc-600 font-bold">?</div>
-              )}
-            </div>
+            {evolutionTargetTemplate ? (
+              <UnitDisplay
+                spriteUrl={evolutionTargetTemplate.spriteUrl}
+                name={evolutionTargetTemplate.name}
+                rarity={evolutionTargetTemplate.rarity}
+                element={evolutionTargetTemplate.element}
+                size="md"
+              />
+            ) : (
+              <div className="w-20 h-20 bg-zinc-800 rounded-xl border-2 border-zinc-700 opacity-50 flex items-center justify-center">
+                <span className="text-zinc-600 font-bold text-2xl">?</span>
+              </div>
+            )}
             <span className={`text-xs font-bold mt-2 ${canEvolve ? 'text-purple-400' : 'text-zinc-600'}`}>
               {evolutionTargetTemplate ? evolutionTargetTemplate.name : 'Max Evolution'}
             </span>
@@ -301,9 +300,14 @@ export default function EvolutionScreen({
             <div className="bg-zinc-900 border border-purple-500/50 rounded-3xl p-8 w-full max-w-sm flex flex-col items-center text-center shadow-[0_0_50px_rgba(168,85,247,0.2)]">
               <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 mb-6 uppercase tracking-wider">Evolution Complete!</h2>
               
-              <div className="w-32 h-32 bg-zinc-800 rounded-2xl border-2 border-purple-500/50 flex items-center justify-center mb-4 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 animate-pulse" />
-                <img src={evolutionTargetTemplate.spriteUrl} alt="Target" className="w-24 h-24 object-contain relative z-10" style={{ imageRendering: 'pixelated' }} />
+              <div className="mb-4">
+                <UnitDisplay
+                  spriteUrl={evolutionTargetTemplate.spriteUrl}
+                  name={evolutionTargetTemplate.name}
+                  rarity={evolutionTargetTemplate.rarity}
+                  element={evolutionTargetTemplate.element}
+                  size="lg"
+                />
               </div>
 
               <div className="flex text-yellow-400 text-sm mb-2">

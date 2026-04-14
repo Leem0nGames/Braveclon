@@ -8,6 +8,8 @@ import BattleScreen from '@/components/BattleScreen';
 import QRHuntScreen from '@/components/QRHuntScreen';
 import FusionScreen from '@/components/FusionScreen';
 import EvolutionScreen from '@/components/EvolutionScreen';
+import ArenaScreen from '@/components/ArenaScreen';
+import ShopScreen from '@/components/ShopScreen';
 import { TopBar } from '@/components/TopBar';
 import { BottomNav } from '@/components/BottomNav';
 import { AlertModal } from '@/components/AlertModal';
@@ -30,7 +32,8 @@ export default function GameApp() {
     startBattle,
     endBattle,
     navigateToFusion,
-    navigateToEvolution
+    navigateToEvolution,
+    spendCurrency
   } = useGameApp();
 
   const { state, timeToNextEnergy, addUnit, setTeamMember, spendGems, processQrScan, rollGacha, equipItem, unequipItem, fuseUnits, evolveUnit } = gameState;
@@ -52,6 +55,8 @@ export default function GameApp() {
         {/* Main Content Area */}
         <main className="flex-1 overflow-y-auto overflow-x-hidden relative">
           {currentScreen === 'home' && <HomeScreen onNavigate={setCurrentScreen} />}
+          {currentScreen === 'arena' && <ArenaScreen onStartBattle={() => { startBattle(7); }} onBack={() => setCurrentScreen('home')} />}
+          {currentScreen === 'shop' && <ShopScreen zel={state.zel} gems={state.gems} onBack={() => setCurrentScreen('home')} onPurchase={(item) => spendCurrency(item.price, item.currency)} />}
           {currentScreen === 'units' && <UnitsScreen state={state} setTeamMember={setTeamMember} equipItem={equipItem} unequipItem={unequipItem} onNavigateToFusion={navigateToFusion} onNavigateToEvolution={navigateToEvolution} />}
           {currentScreen === 'summon' && <SummonScreen state={state} spendGems={spendGems} addUnit={addUnit} rollGacha={rollGacha} onAlert={setAlertMessage} />}
           {currentScreen === 'quest' && <QuestScreen onStartBattle={startBattle} />}

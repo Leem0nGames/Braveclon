@@ -33,8 +33,14 @@ export interface PlayerState {
   zel: number; // Gold
   inventory: UnitInstance[];
   equipmentInventory: EquipInstance[];
-  team: (string | null)[]; // Array of 5 instanceIds
+  team: (string | null)[]; // Array of 7 instanceIds (BF style)
   qrState: QRState;
+  // Pity System counters
+  summonPity: {
+    star5Pulls: number;  // Pulls since last ★5
+    star4Pulls: number;  // Pulls since last ★4
+    lastStar5Pull: number; // What rarity they got last
+  };
 }
 
 export const INITIAL_STATE: PlayerState = {
@@ -54,7 +60,12 @@ export const INITIAL_STATE: PlayerState = {
     { instanceId: 'eq_inst_2', templateId: 'eq_a1' },
     { instanceId: 'eq_inst_3', templateId: 'eq_ac1' },
   ],
-  team: ['inst_1', 'inst_2', null, null, null],
+  summonPity: {
+    star5Pulls: 0,
+    star4Pulls: 0,
+    lastStar5Pull: 0,
+  },
+  team: ['inst_1', 'inst_2', null, null, null, null, null],
   qrState: {
     scansToday: 0,
     lastScanDate: new Date().toISOString().split('T')[0],

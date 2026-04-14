@@ -1,13 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
 import { BattleUnit } from '@/lib/battleTypes';
+import { StatBar } from './ui/StatBar';
+import { COLORS } from '@/lib/design-tokens';
 
 export function UnitStatusBox({ unit, onClick, interactive, isItemSelected }: { unit?: BattleUnit, onClick?: () => void, interactive?: boolean, isItemSelected?: boolean }) {
   if (!unit) {
     return <div className="border-2 border-zinc-800/50 bg-zinc-900/50 rounded-lg" />;
   }
 
-  const hpPercent = (unit.hp / unit.maxHp) * 100;
-  const bbPercent = (unit.bbGauge / unit.maxBb) * 100;
   const isBbReady = unit.bbGauge >= unit.maxBb;
 
   return (
@@ -29,23 +29,8 @@ export function UnitStatusBox({ unit, onClick, interactive, isItemSelected }: { 
       <div className="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
         <div className="text-[11px] font-bold text-white truncate drop-shadow-md leading-none">{unit.template.name}</div>
         
-        {/* HP Bar */}
-        <div className="relative h-3.5 bg-red-950 rounded border border-zinc-900 overflow-hidden">
-          <div className="absolute top-0 left-0 h-full bg-gradient-to-b from-green-400 to-green-600" style={{ width: `${hpPercent}%` }} />
-          <div className="absolute inset-0 flex items-center justify-center text-[9px] font-mono text-white font-bold drop-shadow-[0_1px_1px_rgba(0,0,0,1)]">
-            {Math.ceil(unit.hp)}/{unit.maxHp}
-          </div>
-        </div>
-
-        {/* BB Bar */}
-        <div className="relative h-3 bg-zinc-950 rounded border border-zinc-900 overflow-hidden">
-          <div className={`absolute top-0 left-0 h-full ${isBbReady ? 'bg-gradient-to-b from-yellow-300 to-yellow-500 animate-pulse' : 'bg-gradient-to-b from-blue-400 to-blue-600'}`} style={{ width: `${bbPercent}%` }} />
-          {isBbReady && (
-            <div className="absolute inset-0 flex items-center justify-center text-[8px] font-black text-white drop-shadow-[0_1px_1px_rgba(0,0,0,1)] tracking-widest">
-              BRAVE BURST
-            </div>
-          )}
-        </div>
+        <StatBar current={unit.hp} max={unit.maxHp} type="hp" size="sm" />
+        <StatBar current={unit.bbGauge} max={unit.maxBb} type="bb" size="sm" />
       </div>
       
       {/* Element Icon */}

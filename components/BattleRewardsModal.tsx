@@ -1,4 +1,6 @@
 import { EQUIPMENT_DATABASE } from '@/lib/gameData';
+import { Modal, ModalActionButton } from './ui/Modal';
+import { COLORS, BORDERS } from '@/lib/design-tokens';
 
 export interface BattleRewards {
   zel: number;
@@ -11,7 +13,7 @@ export interface BattleRewards {
 export function BattleRewardsModal({ rewards, onClose }: { rewards: BattleRewards, onClose: () => void }) {
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-black/90 backdrop-blur-sm">
-      <div className="bg-zinc-900 border border-zinc-700 rounded-3xl p-6 w-full max-w-sm flex flex-col items-center text-center shadow-2xl">
+      <div className="bg-zinc-900 border border-yellow-500/50 rounded-3xl p-6 w-full max-w-sm flex flex-col items-center text-center shadow-2xl">
         <h2 className="text-2xl font-black text-yellow-400 mb-6 uppercase tracking-wider">Quest Cleared!</h2>
         
         <div className="flex gap-6 mb-6">
@@ -32,7 +34,7 @@ export function BattleRewardsModal({ rewards, onClose }: { rewards: BattleReward
         )}
 
         {rewards.leveledUpUnits && rewards.leveledUpUnits.length > 0 && (
-          <div className="w-full bg-zinc-800 rounded-xl p-4 mb-4">
+          <div className={`w-full bg-zinc-800 ${BORDERS.radius.lg} p-4 mb-4`}>
             <h3 className="text-sm font-bold text-zinc-400 mb-2 uppercase">Units Leveled Up</h3>
             <div className="flex flex-col gap-2">
               {rewards.leveledUpUnits.map((u, i: number) => (
@@ -46,7 +48,7 @@ export function BattleRewardsModal({ rewards, onClose }: { rewards: BattleReward
         )}
 
         {rewards.equipmentDropped && rewards.equipmentDropped.length > 0 && (
-          <div className="w-full bg-zinc-800 rounded-xl p-4 mb-6">
+          <div className={`w-full bg-zinc-800 ${BORDERS.radius.lg} p-4 mb-6`}>
             <h3 className="text-sm font-bold text-zinc-400 mb-2 uppercase">Equipment Found</h3>
             <div className="flex flex-col gap-2">
               {rewards.equipmentDropped.map((eqId: string, i: number) => {
@@ -62,12 +64,7 @@ export function BattleRewardsModal({ rewards, onClose }: { rewards: BattleReward
           </div>
         )}
 
-        <button 
-          onClick={onClose}
-          className="w-full py-4 bg-yellow-500 hover:bg-yellow-400 text-black rounded-xl font-black tracking-wider transition-colors text-lg"
-        >
-          CONTINUE
-        </button>
+        <ModalActionButton onClick={onClose} label="CONTINUE" variant="primary" />
       </div>
     </div>
   );

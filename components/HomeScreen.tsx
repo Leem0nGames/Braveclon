@@ -1,6 +1,6 @@
 import Image from 'next/image';
 
-export default function HomeScreen({ onNavigate }: { onNavigate: (screen: 'home' | 'quest' | 'units' | 'battle' | 'qrhunt') => void }) {
+export default function HomeScreen({ onNavigate }: { onNavigate: (screen: 'home' | 'quest' | 'units' | 'battle' | 'qrhunt' | 'summon' | 'arena' | 'shop') => void }) {
   return (
     <div className="flex flex-col items-center justify-center h-full p-4 gap-6">
       <div className="text-center space-y-2">
@@ -30,11 +30,16 @@ export default function HomeScreen({ onNavigate }: { onNavigate: (screen: 'home'
           onClick={() => onNavigate('summon')}
         />
         <MenuButton 
+          title="Shop" 
+          subtitle="Buy Items!" 
+          color="from-yellow-600 to-amber-700"
+          onClick={() => onNavigate('shop')}
+        />
+        <MenuButton 
           title="Arena" 
-          subtitle="Coming Soon" 
+          subtitle="Practice Battle!" 
           color="from-zinc-600 to-zinc-700"
-          onClick={() => {}}
-          disabled
+          onClick={() => onNavigate('arena')}
         />
         
         <div className="col-span-2">

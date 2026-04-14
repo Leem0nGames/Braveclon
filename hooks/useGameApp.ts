@@ -3,7 +3,7 @@ import { useGameState } from '@/lib/gameState';
 import { STAGES } from '@/lib/gameData';
 import { BattleRewards } from '@/components/BattleRewardsModal';
 
-export type Screen = 'home' | 'units' | 'summon' | 'quest' | 'battle' | 'qrhunt' | 'fusion' | 'evolution';
+export type Screen = 'home' | 'units' | 'summon' | 'quest' | 'battle' | 'qrhunt' | 'fusion' | 'evolution' | 'arena' | 'shop';
 
 export function useGameApp() {
   const gameState = useGameState();
@@ -62,6 +62,17 @@ export function useGameApp() {
     startBattle,
     endBattle,
     navigateToFusion,
-    navigateToEvolution
+    navigateToEvolution,
+    spendCurrency: (amount: number, currency: 'zel' | 'gems') => {
+      if (currency === 'zel' && gameState.state.zel >= amount) {
+        gameState.updateState({ zel: gameState.state.zel - amount });
+        return true;
+      }
+      if (currency === 'gems' && gameState.state.gems >= amount) {
+        gameState.updateState({ gems: gameState.state.gems - amount });
+        return true;
+      }
+      return false;
+    }
   };
 }

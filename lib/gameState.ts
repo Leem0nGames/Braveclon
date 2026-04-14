@@ -116,6 +116,8 @@ export function useGameState() {
   };
 
   const addUnit = (templateId: string) => {
+    const unit = UNIT_DATABASE[templateId];
+    const rarity = unit?.rarity || 1;
     const newUnit: UnitInstance = {
       instanceId: `inst_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
       templateId,
@@ -123,9 +125,18 @@ export function useGameState() {
       exp: 0,
       equipment: { weapon: null, armor: null, accessory: null }
     };
+    // Update pity counters
+    const pity = state.summonPity || { star5Pulls: 0, star4Pulls: 0, lastStar5Pull: 0 };
+    const newPity = {
+      star5Pulls: rarity >= 5 ? 0 : pity.star5Pulls + 1,
+      star4Pulls: rarity >= 4 ? 0 : pity.star4Pulls + 1,
+      lastStar5Pull: rarity >= 5 ? rarity : pity.lastStar5Pull,
+    };
+    
     setState(prev => ({
       ...prev,
-      inventory: [...prev.inventory, newUnit]
+      inventory: [...prev.inventory, newUnit],
+      summonPity: newPity
     }));
     return newUnit;
   };
@@ -257,9 +268,9 @@ export function useGameState() {
         scannedHashes: [...currentQrState.scannedHashes, hash]
       }};
 
-      if (rewardType === 'zel') newState.zel += rewardValue;
-      if (rewardType === 'energy') newState.energy = Math.min(newState.maxEnergy, newState.energy + rewardValue);
-      if (rewardType === 'gems') newState.gems += rewardValue;
+      if (rewardType === 'zel') newState.zel += Number(rewardValue);
+      if (rewardType === 'energy') newState.energy = Math.min(newState.maxEnergy, newState.energy + Number(rewardValue));
+      if (rewardType === 'gems') newState.gems += Number(rewardValue);
       if (rewardType === 'unit') {
         newState.inventory = [...newState.inventory, {
           instanceId: `inst_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
@@ -283,16 +294,57 @@ export function useGameState() {
   };
 
   const rollGacha = (): string => {
-    const totalWeight = GACHA_POOL.reduce((sum, item) => sum + item.weight, 0);
-    let roll = Math.random() * totalWeight;
+    // Get pity counters from current state
+    const pity = state.summonPity || { star5Pulls: 0, star4Pulls: 0, lastStar5Pull: 0 };
     
-    for (const item of GACHA_POOL) {
-      if (roll < item.weight) {
-        return item.unitId;
-      }
-      roll -= item.weight;
+    // Pity thresholds
+    const STAR5_PITY_THRESHOLD = 50;
+    const STAR4_PITY_THRESHOLD = 20;
+    
+    // Check for pitytriggered guaranteed
+    const pity5Active = pity.star5Pulls >= STAR5_PITY_THRESHOLD;
+    const pity4Active = pity.star4Pulls >= STAR4_PITY_THRESHOLD;
+    
+    // Determine if we get a guaranteed high rarity from pity
+    let guaranteedRarity = 0;
+    if (pity5Active) {
+      guaranteedRarity = 5;
+    } else if (pity4Active && Math.random() < 0.5) {
+      guaranteedRarity = 4;
     }
-    return GACHA_POOL[0].unitId; // Fallback
+    
+    // Roll for rarity if not pity-triggered
+    let rolledRarity: number;
+    if (guaranteedRarity > 0) {
+      rolledRarity = guaranteedRarity;
+    } else {
+      // Normal weighted roll: ★1=50%, ★2=30%, ★3=15%, ★4=4%, ★5=1%
+      const roll = Math.random() * 100;
+      if (roll < 1) rolledRarity = 5;
+      else if (roll < 5) rolledRarity = 4;
+      else if (roll < 20) rolledRarity = 3;
+      else if (roll < 50) rolledRarity = 2;
+      else rolledRarity = 1;
+    }
+    
+    // Select unit by rarity from pool
+    const rarityUnits = GACHA_POOL.filter(item => {
+      const unit = UNIT_DATABASE[item.unitId];
+      return unit && unit.rarity === rolledRarity;
+    });
+    
+    if (rarityUnits.length === 0) {
+      // Fallback to any 3+ star
+      const fallback = GACHA_POOL.filter(item => UNIT_DATABASE[item.unitId]?.rarity >= 3);
+      if (fallback.length > 0) {
+        const idx = Math.floor(Math.random() * fallback.length);
+        return fallback[idx].unitId;
+      }
+      return GACHA_POOL[0].unitId;
+    }
+    
+    const idx = Math.floor(Math.random() * rarityUnits.length);
+    return rarityUnits[idx].unitId;
   };
 
   const equipItem = (unitInstanceId: string, equipInstanceId: string, slot: EquipSlot) => {
@@ -464,7 +516,7 @@ export function useGameState() {
       return newState;
     });
 
-    return { success, expGained, leveledUp, oldLevel, newLevel };
+    return { success, expGained, leveledUp, oldLevel, newLevel, message: success ? 'Fusion complete!' : 'Fusion failed' };
   };
 
   const evolveUnit = (targetInstanceId: string, materialInstanceIds: string[]) => {
@@ -528,7 +580,7 @@ export function useGameState() {
       return newState;
     });
 
-    return { success, newTemplateId };
+    return { success, newTemplateId, message: success ? 'Evolution complete!' : 'Evolution failed' };
   };
 
   return {

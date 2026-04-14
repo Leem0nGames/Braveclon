@@ -13,13 +13,27 @@ export function useBattle(state: PlayerState, stageId: number, onEnd: (victory: 
         const inst = state.inventory.find(u => u.instanceId === instanceId)!;
         const template = UNIT_DATABASE[inst.templateId];
         const stats = calculateStats(template, inst.level, inst.equipment, state.equipmentInventory);
+        
+        // Apply leader skill bonus (from index 0 - leader position)
+        let atkBonus = 1.0;
+        let damageReduction = 0;
+        
+        if (idx === 0 && template.leaderSkill) {
+          if (template.leaderSkill.statBoost?.atk) {
+            atkBonus += template.leaderSkill.statBoost.atk;
+          }
+          if (template.leaderSkill.damageReduction) {
+            damageReduction = template.leaderSkill.damageReduction;
+          }
+        }
+        
         return {
           id: `p_${idx}`,
           template,
           isPlayer: true,
           hp: stats.hp,
           maxHp: stats.hp,
-          atk: stats.atk,
+          atk: Math.floor(stats.atk * atkBonus),
           def: stats.def,
           bbGauge: 0,
           maxBb: template.skill.cost,
@@ -32,14 +46,18 @@ export function useBattle(state: PlayerState, stageId: number, onEnd: (victory: 
 
   const [enemyUnits, setEnemyUnits] = useState<BattleUnit[]>(() => {
     const stageData = STAGES.find(s => s.id === stageId) || STAGES[0];
+    // HP Pool scaling by stage (10% increase per stage)
+    const hpMultiplier = 1 + (stageId * 0.1);
+    
     return stageData.enemies.map((enemyId, idx) => {
       const template = ENEMIES.find(e => e.id === enemyId) || ENEMIES[0];
+      const scaledHp = Math.floor(template.baseStats.hp * hpMultiplier);
       return {
         id: `e_${idx}`,
         template,
         isPlayer: false,
-        hp: template.baseStats.hp,
-        maxHp: template.baseStats.hp,
+        hp: scaledHp,
+        maxHp: scaledHp,
         atk: template.baseStats.atk,
         def: template.baseStats.def,
         bbGauge: 0,
@@ -52,6 +70,7 @@ export function useBattle(state: PlayerState, stageId: number, onEnd: (victory: 
   });
 
   const [turnState, setTurnState] = useState<'player_input' | 'player_executing' | 'enemy_executing' | 'victory' | 'defeat'>('player_input');
+  const [turnCount, setTurnCount] = useState(1);
   const [combatLog, setCombatLog] = useState<string[]>(['Battle Started!']);
   const [bbFlash, setBbFlash] = useState(false);
   const [bbCutInUnit, setBbCutInUnit] = useState<BattleUnit | null>(null);
@@ -187,8 +206,20 @@ export function useBattle(state: PlayerState, stageId: number, onEnd: (victory: 
       // Calculate damage
       const isBb = attacker.queuedBb;
       const powerMultiplier = isBb ? attacker.template.skill.power : 1.0;
-      const elementMultiplier = getElementMultiplier(attacker.template.element, target.template.element);
+      let elementMultiplier = getElementMultiplier(attacker.template.element, target.template.element);
       const isWeakness = elementMultiplier > 1.0;
+      
+      // Apply leader skill elemental boost (only to attacker if leader is in position 0)
+      const leaderUnit = state.team[0] ? state.inventory.find(u => u.instanceId === state.team[0]) : null;
+      if (leaderUnit && i === 0) {
+        const leaderTemplate = UNIT_DATABASE[leaderUnit.templateId];
+        if (leaderTemplate.leaderSkill?.elementBoost) {
+          const elementBoost = leaderTemplate.leaderSkill.elementBoost[attacker.template.element];
+          if (elementBoost) {
+            elementMultiplier *= (1 + elementBoost);
+          }
+        }
+      }
       
       let rawDamage = Math.max(1, (attacker.atk * powerMultiplier) - (target.def * 0.5));
       let finalDamage = Math.floor(rawDamage * elementMultiplier);
@@ -371,11 +402,13 @@ export function useBattle(state: PlayerState, stageId: number, onEnd: (victory: 
     }
 
     setTurnState('player_input');
+    setTurnCount(prev => prev + 1);
   };
 
   return {
     playerUnits,
     enemyUnits,
+    turnCount,
     turnState,
     combatLog,
     bbFlash,

@@ -63,6 +63,12 @@ export default function QRHuntScreen({ state, onBack, onScan }: QRHuntScreenProp
           <>
             {/* Scanner View */}
             <div className={`w-full max-w-sm aspect-square rounded-3xl overflow-hidden border-4 ${isScanning ? 'border-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.3)]' : 'border-zinc-800'} relative transition-all duration-500`}>
+              {/* Corner decorations */}
+              <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-emerald-400 z-20 pointer-events-none" />
+              <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-emerald-400 z-20 pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-emerald-400 z-20 pointer-events-none" />
+              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-emerald-400 z-20 pointer-events-none" />
+              
               {isScanning ? (
                 <Scanner 
                   onScan={(result) => handleScan(result[0].rawValue)}
@@ -89,6 +95,17 @@ export default function QRHuntScreen({ state, onBack, onScan }: QRHuntScreenProp
                   animate={{ y: ['-100%', '200%'] }}
                   transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
                 />
+              )}
+              
+              {/* Scan line effect */}
+              {isScanning && (
+                <div className="absolute top-1/2 left-4 right-4 h-0.5 bg-emerald-400/50 z-10 pointer-events-none">
+                  <motion.div 
+                    animate={{ y: ['-80px', '80px'] }}
+                    transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+                    className="w-full h-8 bg-gradient-to-b from-emerald-400/0 via-emerald-400/60 to-emerald-400/0 blur-sm"
+                  />
+                </div>
               )}
             </div>
 

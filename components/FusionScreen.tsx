@@ -5,6 +5,10 @@ import { UNIT_DATABASE, getExpForLevel, getFusionCost, getFusionExpGain } from '
 import { X, Zap, ArrowRight, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
+import { ELEMENT_ICONS, Element } from '@/lib/gameData';
+import { UnitFrame } from './UnitFrame';
+import { UnitDisplay } from './ui/UnitDisplay';
+
 export default function FusionScreen({ 
   state, 
   targetInstanceId, 
@@ -21,6 +25,8 @@ export default function FusionScreen({
   const [selectedMaterials, setSelectedMaterials] = useState<string[]>([]);
   const [isFusing, setIsFusing] = useState(false);
   const [fusionResult, setFusionResult] = useState<{ success: boolean; message: string; expGained?: number; levelUp?: boolean; oldLevel?: number; newLevel?: number } | null>(null);
+  const [elementFilter, setElementFilter] = useState<Element | 'all'>('all');
+  const [rarityFilter, setRarityFilter] = useState<number | 'all'>('all');
 
   const targetUnit = state.inventory.find(u => u.instanceId === targetInstanceId);
   if (!targetUnit) {
@@ -85,10 +91,12 @@ export default function FusionScreen({
     }, 1500);
   };
 
-  const availableMaterials = state.inventory.filter(u => 
-    u.instanceId !== targetInstanceId && 
-    !state.team.includes(u.instanceId)
-  );
+  const availableMaterials = state.inventory.filter(u => {
+    if (u.instanceId === targetInstanceId || state.team.includes(u.instanceId)) return false;
+    if (elementFilter !== 'all' && UNIT_DATABASE[u.templateId].element !== elementFilter) return false;
+    if (rarityFilter !== 'all' && UNIT_DATABASE[u.templateId].rarity !== rarityFilter) return false;
+    return true;
+  });
 
   return (
     <div className="flex flex-col h-full bg-zinc-950 relative">
@@ -106,14 +114,14 @@ export default function FusionScreen({
         <div className="p-4 bg-zinc-900 border-b border-zinc-800 flex items-center gap-4 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl" />
           
-          <div className="w-20 h-20 bg-zinc-800 rounded-xl border-2 border-blue-500/50 relative overflow-hidden z-10">
-            <img 
-              src={targetTemplate.spriteUrl} 
-              alt={targetTemplate.name} 
-              className="w-full h-full object-cover scale-[2.5] origin-[50%_20%]" 
-              style={{ imageRendering: 'pixelated' }} 
-            />
-          </div>
+          <UnitDisplay
+            spriteUrl={targetTemplate.spriteUrl}
+            name={targetTemplate.name}
+            rarity={targetTemplate.rarity}
+            element={targetTemplate.element}
+            level={targetUnit.level}
+            size="md"
+          />
           
           <div className="flex-1 z-10">
             <h2 className="text-lg font-bold text-white">{targetTemplate.name}</h2>
@@ -164,8 +172,21 @@ export default function FusionScreen({
 
         {/* Material Selection Area */}
         <div className="p-4">
-          <div className="flex justify-between items-end mb-4">
-            <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider">Select Materials</h3>
+          <div className="flex justify-between items-end mb-3">
+            <div className="flex gap-2">
+              <button
+                onClick={() => setElementFilter(elementFilter === 'all' ? 'Fire' : elementFilter === 'Fire' ? 'Water' : elementFilter === 'Water' ? 'Earth' : elementFilter === 'Earth' ? 'Thunder' : elementFilter === 'Thunder' ? 'Light' : elementFilter === 'Light' ? 'Dark' : 'all')}
+                className="text-xs font-bold px-2 py-1 bg-zinc-800 rounded border border-zinc-700 text-zinc-400 hover:text-white"
+              >
+                {elementFilter === 'all' ? '⚄ All' : ELEMENT_ICONS[elementFilter]}
+              </button>
+              <button
+                onClick={() => setRarityFilter(rarityFilter === 'all' ? 5 : rarityFilter === 5 ? 4 : rarityFilter === 4 ? 3 : rarityFilter === 3 ? 2 : 'all')}
+                className="text-xs font-bold px-2 py-1 bg-zinc-800 rounded border border-zinc-700 text-zinc-400 hover:text-white"
+              >
+                {rarityFilter === 'all' ? '★ All' : `★${rarityFilter}`}
+              </button>
+            </div>
             <span className="text-xs font-mono text-zinc-400">{selectedMaterials.length} / 5</span>
           </div>
 
@@ -175,7 +196,7 @@ export default function FusionScreen({
               <p className="text-zinc-600 text-xs mt-1">Units in your team cannot be fused.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-4 md:grid-cols-5 gap-2">
               {availableMaterials.map(unit => {
                 const template = UNIT_DATABASE[unit.templateId];
                 const isSelected = selectedMaterials.includes(unit.instanceId);
@@ -268,9 +289,13 @@ export default function FusionScreen({
                 transition={{ duration: 1.5, ease: "easeInOut" }}
                 className="absolute inset-4 border-4 border-indigo-500 rounded-full border-l-transparent border-r-transparent"
               />
-              <div className="w-24 h-24 bg-zinc-800 rounded-full flex items-center justify-center z-10 border-2 border-blue-400 shadow-[0_0_30px_rgba(59,130,246,0.8)]">
-                <img src={targetTemplate.spriteUrl} alt="Target" className="w-16 h-16 object-contain animate-pulse" style={{ imageRendering: 'pixelated' }} />
-              </div>
+              <UnitDisplay
+                  spriteUrl={targetTemplate.spriteUrl}
+                  name={targetTemplate.name}
+                  rarity={targetTemplate.rarity}
+                  element={targetTemplate.element}
+                  size="lg"
+                />
             </div>
           </motion.div>
         )}

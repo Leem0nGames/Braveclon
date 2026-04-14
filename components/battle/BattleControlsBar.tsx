@@ -1,17 +1,40 @@
 import { BattleStateData } from './BattleArena';
+import { BattleUnit } from '@/lib/battleTypes';
 
 export interface BattleControlsData extends BattleStateData {
   inventoryItems: { id: string; name: string; count: number; icon: string }[];
   setSelectedItem: (id: string | null) => void;
   executeTurn: () => void;
+  playerUnits: BattleUnit[];
 }
 
 export function BattleControlsBar({ battleState }: { battleState: BattleControlsData }) {
-  const { turnState, inventoryItems, selectedItem, setSelectedItem, executeTurn } = battleState;
+  const { turnState, inventoryItems, selectedItem, setSelectedItem, executeTurn, playerUnits } = battleState;
+
+  const totalBB = playerUnits.reduce((sum, u) => sum + (u.queuedBb ? u.bbGauge : 0), 0);
+  const readyUnits = playerUnits.filter(u => u.bbGauge >= u.maxBb && !u.isDead).length;
 
   return (
-    <div className="bg-[url('https://cdn.jsdelivr.net/gh/Leem0nGames/gameassets@main/file_0000000071b471f5851dd21e1a9fc22e.png')] bg-cover bg-bottom border-t-2 border-zinc-700 flex flex-col justify-center px-2 py-1.5 gap-1 pb-safe relative">
+    <div className="bg-[url('https://cdn.jsdelivr.net/gh/Leem0nGames/gameassets@main/file_0000000071b471f5851dd21e1a9fc22e.png')] bg-cover bg-bottom border-t-2 border-zinc-700 flex flex-col justify-center px-2 py-1 gap-1 pb-safe relative">
       <div className="absolute inset-0 bg-black/70" />
+      
+      {/* BB Gauge Bar */}
+      {turnState === 'player_input' && (
+        <div className="relative z-10 flex items-center gap-2 px-1 mb-1">
+          <div className="flex-1 h-2 bg-zinc-900 rounded-full overflow-hidden border border-zinc-700">
+            <div 
+              className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 transition-all duration-300"
+              style={{ width: `${Math.min(100, (totalBB / 100) * 100)}%` }}
+            />
+          </div>
+          <div className="flex items-center gap-1 text-[9px] font-bold">
+            <span className={readyUnits > 0 ? 'text-cyan-400 animate-pulse' : 'text-zinc-500'}>
+              {readyUnits}
+            </span>
+            <span className="text-zinc-400">BB</span>
+          </div>
+        </div>
+      )}
       
       <div className="relative z-10 text-center text-[9px] font-black text-zinc-400 tracking-widest mb-0.5">ITEMS</div>
       

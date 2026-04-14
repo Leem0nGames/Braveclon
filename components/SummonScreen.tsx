@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { PlayerState } from '@/lib/gameState';
 import { UNIT_DATABASE, UnitTemplate } from '@/lib/gameData';
 import { motion, AnimatePresence } from 'motion/react';
+import { UnitFrame } from './UnitFrame';
 
 type SummonPhase = 'idle' | 'gate' | 'reveal';
 
@@ -115,8 +116,24 @@ export default function SummonScreen({ state, spendGems, addUnit, rollGacha, onA
         }
       `}</style>
       
-      <div className="absolute top-4 right-4 bg-zinc-800/80 px-3 py-1 rounded-full text-sm font-bold text-pink-400 border border-pink-500/30 shadow-[0_0_10px_rgba(236,72,153,0.2)] z-50">
-        💎 {state.gems}
+      <div className="absolute top-4 right-4 flex flex-col items-end gap-2 z-50">
+        <div className="flex items-center gap-2">
+          <div className="bg-zinc-800/80 px-3 py-1 rounded-full text-sm font-bold text-pink-400 border border-pink-500/30 shadow-[0_0_10px_rgba(236,72,153,0.2)]">
+            💎 {state.gems}
+          </div>
+          <div className="bg-zinc-900/80 px-2 py-1 rounded-full text-xs font-bold text-zinc-400 border border-zinc-700">
+            5 💎
+          </div>
+        </div>
+        {/* Pity Counter */}
+        <div className="flex items-center gap-2">
+          <div className="bg-yellow-900/30 px-2 py-1 rounded-full text-xs font-bold text-yellow-400 border border-yellow-500/30">
+            ★5: {state.summonPity?.star5Pulls || 0}/50
+          </div>
+          <div className="bg-purple-900/30 px-2 py-1 rounded-full text-xs font-bold text-purple-400 border border-purple-500/30">
+            ★4: {state.summonPity?.star4Pulls || 0}/20
+          </div>
+        </div>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center w-full relative">
@@ -216,26 +233,19 @@ export default function SummonScreen({ state, spendGems, addUnit, rollGacha, onA
                 {summonResult.rarity >= 5 ? "MEGA RARE!" : summonResult.rarity === 4 ? "SUPER RARE!" : "RARE!"}
               </motion.h2>
 
-              <div className="relative w-64 h-64 mb-6 z-10">
+              <div className="mb-6 z-10">
                 <motion.div 
                   animate={{ rotate: 360 }}
                   transition={{ duration: summonResult.rarity >= 5 ? 4 : 10, repeat: Infinity, ease: "linear" }}
-                  className="absolute inset-0 bg-[url('https://cdn.jsdelivr.net/gh/Leem0nGames/gameassets@main/RO/magic_circle.png')] bg-contain bg-center bg-no-repeat opacity-40"
+                  className="absolute inset-0 w-64 h-64 bg-[url('https://cdn.jsdelivr.net/gh/Leem0nGames/gameassets@main/RO/magic_circle.png')] bg-contain bg-center bg-no-repeat opacity-20"
                   style={{ filter: summonResult.rarity >= 5 ? 'hue-rotate(90deg) saturate(2)' : 'none' }}
                 />
-                <motion.img 
-                  initial={{ y: 50, scale: 0, opacity: 0, filter: 'brightness(5)' }}
-                  animate={{ y: [20, -10, 20], scale: 1, opacity: 1, filter: 'brightness(1)' }}
-                  transition={{ 
-                    y: { duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 },
-                    scale: { type: "spring", bounce: 0.5, duration: 0.8 },
-                    opacity: { duration: 0.3 },
-                    filter: { duration: 1 }
-                  }}
-                  src={summonResult.spriteUrl} 
-                  alt={summonResult.name}
-                  className="w-full h-full object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)]"
-                  style={{ imageRendering: 'pixelated' }}
+                <UnitFrame
+                  spriteUrl={summonResult.spriteUrl}
+                  rarity={summonResult.rarity}
+                  element={summonResult.element}
+                  level={1}
+                  size="lg"
                 />
               </div>
 

@@ -124,7 +124,6 @@ export default function UnitsScreen({
                     size="sm"
                     isLeader={idx === 0}
                     onClick={() => unit ? handleSelectUnit(unit.instanceId) : setSelectedSlot(idx)}
-                    interactive
                   />
                   <div className="text-center text-[10px] text-zinc-500 mt-1">{idx + 1}</div>
                 </div>

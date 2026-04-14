@@ -3,8 +3,9 @@ import { motion } from 'motion/react';
 import { getExpForLevel } from '@/lib/gameData';
 
 interface UnitFrameProps {
+  unit?: { name: string; rarity: number; element: string; spriteUrl?: string } | null;
   spriteUrl?: string;
-  rarity: number;
+  rarity?: number;
   element?: string;
   level?: number;
   isSelected?: boolean;
@@ -38,9 +39,10 @@ const SIZES = {
 };
 
 export function UnitFrame({ 
+  unit,
   spriteUrl, 
-  rarity, 
-  element, 
+  rarity: rarityProp, 
+  element: elementProp, 
   level, 
   isSelected, 
   isInTeam,
@@ -49,9 +51,10 @@ export function UnitFrame({
   size = 'md',
   onClick
 }: UnitFrameProps) {
-  const r = Math.min(rarity, 5);
+  const r = (unit?.rarity ?? rarityProp ?? 1);
   const colors = RARITY_COLORS[r as keyof typeof RARITY_COLORS] || RARITY_COLORS[1];
   const s = SIZES[size];
+  const finalSpriteUrl = unit?.spriteUrl ?? spriteUrl;
 
   return (
     <motion.button
@@ -69,9 +72,9 @@ export function UnitFrame({
       <div className={`absolute inset-0 opacity-20 ${colors.bg}`} />
       
       {/* Main sprite */}
-      {spriteUrl ? (
+      {finalSpriteUrl ? (
         <img 
-          src={spriteUrl} 
+          src={finalSpriteUrl} 
           alt="" 
           className={`
             w-full h-full object-contain drop-shadow-lg

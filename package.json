@@ -1,5 +1,5 @@
 {
-  "name": "ai-studio-applet",
+  "name": "braveclon",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "clean": "next clean"
+    "clean": "next clean",
+    "vercel-build": "next build"
   },
   "dependencies": {
     "@google/genai": "^1.17.0",

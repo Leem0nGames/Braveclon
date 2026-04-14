@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { ArrowLeft, QrCode, Sparkles, AlertCircle } from 'lucide-react';
 import { PlayerState } from '@/lib/gameState';
-import { UNIT_DATABASE } from '@/lib/gameData';
+import { UNIT_DATABASE, MAX_QR_SCANS_PER_DAY } from '@/lib/gameData';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface QRHuntScreenProps {
@@ -29,7 +29,7 @@ export default function QRHuntScreen({ state, onBack, onScan }: QRHuntScreenProp
     setIsScanning(true);
   };
 
-  const scansLeft = Math.max(0, 5 - (state.qrState?.scansToday || 0));
+  const scansLeft = Math.max(0, MAX_QR_SCANS_PER_DAY - (state.qrState?.scansToday || 0));
 
   return (
     <div className="flex flex-col h-full bg-zinc-950 text-white relative">
@@ -45,7 +45,7 @@ export default function QRHuntScreen({ state, onBack, onScan }: QRHuntScreenProp
           <p className="text-xs text-zinc-400">Scan real-world codes for loot!</p>
         </div>
         <div className="text-right">
-          <div className="text-sm font-bold text-emerald-400">{scansLeft} / 5</div>
+          <div className="text-sm font-bold text-emerald-400">{scansLeft} / {MAX_QR_SCANS_PER_DAY}</div>
           <div className="text-[10px] text-zinc-500 uppercase tracking-wider">Scans Left</div>
         </div>
       </div>
@@ -57,7 +57,7 @@ export default function QRHuntScreen({ state, onBack, onScan }: QRHuntScreenProp
           <div className="text-center p-8 bg-zinc-900 rounded-2xl border border-zinc-800 max-w-sm">
             <AlertCircle className="w-16 h-16 text-zinc-500 mx-auto mb-4" />
             <h2 className="text-xl font-bold mb-2">Daily Limit Reached</h2>
-            <p className="text-zinc-400 text-sm">You have used all 5 of your QR scans for today. Come back tomorrow for more loot!</p>
+            <p className="text-zinc-400 text-sm">You have used all {MAX_QR_SCANS_PER_DAY} of your QR scans for today. Come back tomorrow for more loot!</p>
           </div>
         ) : (
           <>

@@ -97,6 +97,9 @@ export interface QRRewardTable {
 
 export const ELEMENTS: Element[] = ['Fire', 'Water', 'Earth', 'Thunder', 'Light', 'Dark'];
 
+export const SUMMON_COST = 5;
+export const MAX_QR_SCANS_PER_DAY = 5;
+
 const BASE_URL = 'https://cdn.jsdelivr.net/gh/Leem0nGames/gameassets@main/RO';
 
 export const UNIT_DATABASE: Record<string, UnitTemplate> = {

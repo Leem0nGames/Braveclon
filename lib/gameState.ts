@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { UnitTemplate, UNIT_DATABASE, Stats, QR_REWARD_TABLE, GACHA_POOL, EQUIPMENT_DATABASE, EquipSlot, STAGES, getExpForLevel, getFusionCost, getFusionExpGain, getEvolutionCost } from './gameData';
+import { UnitTemplate, UNIT_DATABASE, Stats, QR_REWARD_TABLE, GACHA_POOL, EQUIPMENT_DATABASE, EquipSlot, STAGES, getExpForLevel, getFusionCost, getFusionExpGain, getEvolutionCost, MAX_QR_SCANS_PER_DAY } from './gameData';
 import { UnitInstance, EquipInstance, QRState, PlayerState, INITIAL_STATE } from './gameTypes';
 
 export * from './gameTypes';
@@ -188,8 +188,8 @@ export function useGameState() {
       currentQrState.scannedHashes = []; // Optional: clear hashes on a new day so they can scan the same code tomorrow?
     }
 
-    if (currentQrState.scansToday >= 5) {
-      return { success: false, message: "Daily scan limit reached (5/5)." };
+    if (currentQrState.scansToday >= MAX_QR_SCANS_PER_DAY) {
+      return { success: false, message: `Daily scan limit reached (${MAX_QR_SCANS_PER_DAY}/${MAX_QR_SCANS_PER_DAY}).` };
     }
 
     const hash = hashString(qrData).toString();

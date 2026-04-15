@@ -421,7 +421,7 @@ export function useGameState(options: UseGameStateOptions = {}) {
       inventory: newInventory
     }));
 
-    return { success: true, expGained, newLevel, message: 'Fusion complete!' };
+    return { success: true, expGained, leveledUp: newLevel > targetUnit.level, oldLevel: targetUnit.level, newLevel, message: 'Fusion complete!' };
   };
 
   const evolveUnit = (targetInstanceId: string) => {

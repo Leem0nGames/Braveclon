@@ -20,7 +20,7 @@ export default function UnitsScreen({
 }: { 
   state: PlayerState, 
   setTeamMember: (index: number, id: string | null) => void,
-  equipItem: (unitId: string, equipId: string, slot: EquipSlot) => void,
+  equipItem: (unitId: string, slot: EquipSlot, itemId: string | null) => void,
   unequipItem: (unitId: string, slot: EquipSlot) => void,
   onNavigateToFusion?: (unitId: string) => void,
   onNavigateToEvolution?: (unitId: string) => void
@@ -238,7 +238,7 @@ export default function UnitsScreen({
                     <button
                       key={eq.instanceId}
                       onClick={() => {
-                        equipItem(inspectUnitId, eq.instanceId, equipModalSlot);
+                        equipItem(inspectUnitId, equipModalSlot!, eq.instanceId);
                         setEquipModalSlot(null);
                       }}
                       className="flex items-center gap-3 p-3 bg-zinc-800 border border-zinc-700 rounded-xl hover:border-yellow-400 text-left transition-colors"

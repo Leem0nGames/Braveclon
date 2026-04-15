@@ -15,7 +15,7 @@ interface UnitDetailModalProps {
   onNavigateToFusion?: (unitId: string) => void;
   onNavigateToEvolution?: (unitId: string) => void;
   setCompareUnitId?: (id: string | null) => void;
-  onEquipItem?: (unitId: string, equipId: string, slot: EquipSlot) => void;
+  onEquipItem?: (unitId: string, slot: EquipSlot, itemId: string | null) => void;
   onUnequipItem?: (unitId: string, slot: EquipSlot) => void;
 }
 

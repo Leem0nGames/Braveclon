@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGameState } from '@/lib/gameState';
+import { onAuthChange, getCurrentUser, AuthUser } from '@/lib/auth';
 import { X } from 'lucide-react';
+import AuthScreen from '@/components/AuthScreen';
 import HomeScreen from '@/components/HomeScreen';
 import RandallScreen from '@/components/RandallScreen';
 import SummonScreen from '@/components/SummonScreen';
@@ -16,7 +18,15 @@ import { STAGES } from '@/lib/gameData';
 type Screen = 'home' | 'units' | 'summon' | 'quest' | 'battle' | 'qrhunt' | 'fusion' | 'shop' | 'arena' | 'randall' | 'friends';
 
 export default function GameApp() {
-  const { state, isLoaded, timeToNextEnergy, updateState, addUnit, setTeamMember, spendGems, spendEnergy, processQrScan, rollGacha, equipItem, unequipItem, winBattle, fuseUnits } = useGameState();
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [authLoaded, setAuthLoaded] = useState(false);
+  
+  const { state, isLoaded, timeToNextEnergy, updateState, addUnit, setTeamMember, spendGems, spendEnergy, processQrScan, rollGacha, equipItem, unequipItem, winBattle, fuseUnits, isSaving, saveToCloud } = useGameState({
+    userId: user?.id,
+    autoSave: true,
+    saveInterval: 30000
+  });
+  
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
   const [battleStage, setBattleStage] = useState<number | null>(null);
   const [fusionTargetId, setFusionTargetId] = useState<string | null>(null);
@@ -24,7 +34,36 @@ export default function GameApp() {
   const [battleRewards, setBattleRewards] = useState<any>(null);
   const [showAlert, setShowAlert] = useState(false);
 
-  if (!isLoaded) {
+  // Check auth status on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      const currentUser = await getCurrentUser();
+      setUser(currentUser as any);
+      setAuthLoaded(true);
+    };
+    checkAuth();
+
+    // Listen for auth changes
+    const authListener = onAuthChange((user) => {
+      setUser(user);
+    });
+
+    return () => {
+      if (authListener?.data?.subscription) {
+        authListener.data.subscription.unsubscribe();
+      }
+    };
+  }, []);
+
+  const handleLogin = (userId: string) => {
+    setUser({ id: userId, email: '' } as AuthUser);
+  };
+
+  const handleSkip = () => {
+    setAuthLoaded(true);
+  };
+
+  if (!authLoaded || !isLoaded) {
     return (
       <div className="flex h-screen items-center justify-center bg-zinc-950 text-white">
         <div className="text-center">
@@ -33,6 +72,10 @@ export default function GameApp() {
         </div>
       </div>
     );
+  }
+
+  if (!user) {
+    return <AuthScreen onLogin={handleLogin} onSkip={handleSkip} />;
   }
 
   const formatTime = (ms: number) => {

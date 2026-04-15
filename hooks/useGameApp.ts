@@ -32,7 +32,9 @@ export function useGameApp() {
     setCurrentScreen('home');
     if (victory && battleStage !== null) {
       const rewards = winBattle(battleStage);
-      setBattleRewards(rewards);
+      if (rewards) {
+        setBattleRewards(rewards);
+      }
     }
     setBattleStage(null);
   };

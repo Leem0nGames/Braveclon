@@ -62,7 +62,7 @@ const Particles = ({ rarity }: { rarity: number }) => {
   );
 };
 
-export default function SummonScreen({ state, spendGems, addUnit, rollGacha, onAlert }: { state: PlayerState, spendGems: (amount: number) => boolean, addUnit: (id: string) => void, rollGacha: () => string, onAlert: (msg: string) => void }) {
+export default function SummonScreen({ state, spendGems, addUnit, rollGacha, onAlert }: { state: PlayerState, spendGems: (amount: number) => boolean, addUnit: (id: string) => void, rollGacha: (count?: number) => { templateId: string; rarity: number }[], onAlert: (msg: string) => void }) {
   const [summonResult, setSummonResult] = useState<UnitTemplate | null>(null);
   const [phase, setPhase] = useState<SummonPhase>('idle');
   const [isShaking, setIsShaking] = useState(false);
@@ -71,7 +71,9 @@ export default function SummonScreen({ state, spendGems, addUnit, rollGacha, onA
     if (phase !== 'idle') return;
     
     if (spendGems(5)) {
-      const randomId = rollGacha();
+      const results = rollGacha(1);
+      const randomId = results[0].templateId;
+      const rarity = results[0].rarity;
       const unit = UNIT_DATABASE[randomId];
       setSummonResult(unit);
       
@@ -81,7 +83,7 @@ export default function SummonScreen({ state, spendGems, addUnit, rollGacha, onA
       setTimeout(() => setIsShaking(true), 800);
       
       // High rarity gets a longer, more dramatic buildup
-      const gateDuration = unit.rarity >= 5 ? 4000 : 2500;
+      const gateDuration = rarity >= 5 ? 4000 : 2500;
       
       setTimeout(() => {
         setIsShaking(false);

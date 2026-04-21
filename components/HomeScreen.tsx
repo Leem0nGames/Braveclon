@@ -74,14 +74,29 @@ export default function HomeScreen({ state, onNavigate, onStartBattle, timeToNex
 
         {/* Right: Info/Mail/Book Icons */}
         <div className="flex items-center gap-1">
-          <button className="w-7 h-7 rounded-lg bg-zinc-800/80 flex items-center justify-center text-zinc-300 hover:bg-zinc-700 transition-colors">
-            <span className="text-xs">📫</span>
+          <button
+            aria-label="Notices"
+            className="w-7 h-7 rounded-lg bg-zinc-800/80 flex items-center justify-center text-zinc-300 hover:bg-zinc-700 transition-colors"
+          >
+            <span className="text-xs" aria-hidden="true">
+              📫
+            </span>
           </button>
-          <button className="w-7 h-7 rounded-lg bg-zinc-800/80 flex items-center justify-center text-zinc-300 hover:bg-zinc-700 transition-colors">
-            <span className="text-xs">📧</span>
+          <button
+            aria-label="Mail"
+            className="w-7 h-7 rounded-lg bg-zinc-800/80 flex items-center justify-center text-zinc-300 hover:bg-zinc-700 transition-colors"
+          >
+            <span className="text-xs" aria-hidden="true">
+              📧
+            </span>
           </button>
-          <button className="w-7 h-7 rounded-lg bg-zinc-800/80 flex items-center justify-center text-zinc-300 hover:bg-zinc-700 transition-colors">
-            <span className="text-xs">📖</span>
+          <button
+            aria-label="Library"
+            className="w-7 h-7 rounded-lg bg-zinc-800/80 flex items-center justify-center text-zinc-300 hover:bg-zinc-700 transition-colors"
+          >
+            <span className="text-xs" aria-hidden="true">
+              📖
+            </span>
           </button>
         </div>
       </div>

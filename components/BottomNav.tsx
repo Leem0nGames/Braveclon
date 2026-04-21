@@ -36,11 +36,15 @@ function NavButton({ icon, label, isActive, onClick }: { icon: React.ReactNode, 
   return (
     <button 
       onClick={onClick}
+      aria-label={label}
+      aria-current={isActive ? 'page' : undefined}
       className={`flex flex-col items-center justify-center w-16 h-14 transition-colors ${
         isActive ? 'text-emerald-400' : 'text-zinc-500 hover:text-zinc-300'
       }`}
     >
-      {icon}
+      <div aria-hidden="true">
+        {icon}
+      </div>
       <span className="text-[10px] mt-1 font-medium uppercase tracking-wider">{label}</span>
     </button>
   );

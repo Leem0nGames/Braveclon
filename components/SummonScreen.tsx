@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { PlayerState } from '@/lib/gameState';
-import { UNIT_DATABASE, UnitTemplate } from '@/lib/gameData';
+import { UNIT_DATABASE, UnitTemplate, SUMMON_COST } from '@/lib/gameData';
 import { motion, AnimatePresence } from 'motion/react';
 import { UnitFrame } from './UnitFrame';
 
@@ -157,7 +157,7 @@ export default function SummonScreen({ state, spendGems, addUnit, rollGacha, onA
                 className="relative overflow-hidden rounded-full bg-gradient-to-r from-pink-500 to-purple-600 px-8 py-4 font-black text-white shadow-[0_0_20px_rgba(236,72,153,0.4)] transition-transform active:scale-95 hover:scale-105"
               >
                 <span className="relative z-10 flex items-center gap-2 text-lg">
-                  SUMMON (5 💎)
+                  SUMMON ({SUMMON_COST} 💎)
                 </span>
               </button>
             </motion.div>

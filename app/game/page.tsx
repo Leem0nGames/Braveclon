@@ -20,6 +20,7 @@ type Screen = 'home' | 'units' | 'summon' | 'quest' | 'battle' | 'qrhunt' | 'fus
 export default function GameApp() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [authLoaded, setAuthLoaded] = useState(false);
+  const [skippedAuth, setSkippedAuth] = useState(false);
   
   const { state, isLoaded, timeToNextEnergy, updateState, addUnit, setTeamMember, spendGems, spendEnergy, processQrScan, rollGacha, equipItem, unequipItem, winBattle, fuseUnits, isSaving, saveToCloud } = useGameState({
     userId: user?.id,
@@ -60,6 +61,7 @@ export default function GameApp() {
   };
 
   const handleSkip = () => {
+    setSkippedAuth(true);
     setAuthLoaded(true);
   };
 
@@ -74,7 +76,7 @@ export default function GameApp() {
     );
   }
 
-  if (!user) {
+  if (!user && !skippedAuth) {
     return <AuthScreen onLogin={handleLogin} onSkip={handleSkip} />;
   }
 

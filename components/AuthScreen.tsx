@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { signUp, signIn, signOut, getCurrentUser, AuthUser } from '@/lib/auth';
+import { Button } from '@/components/ui/Button';
 
 interface AuthScreenProps {
   onLogin: (userId: string) => void;
@@ -74,8 +75,9 @@ export default function AuthScreen({ onLogin, onSkip }: AuthScreenProps) {
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === 'register' && (
             <div>
-              <label className="block text-xs text-zinc-400 mb-1">Username</label>
+              <label htmlFor="username" className="block text-xs text-zinc-400 mb-1">Username</label>
               <input
+                id="username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
@@ -86,8 +88,9 @@ export default function AuthScreen({ onLogin, onSkip }: AuthScreenProps) {
           )}
 
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Email</label>
+            <label htmlFor="email" className="block text-xs text-zinc-400 mb-1">Email</label>
             <input
+              id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -98,8 +101,9 @@ export default function AuthScreen({ onLogin, onSkip }: AuthScreenProps) {
           </div>
 
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Password</label>
+            <label htmlFor="password" className="block text-xs text-zinc-400 mb-1">Password</label>
             <input
+              id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -116,13 +120,13 @@ export default function AuthScreen({ onLogin, onSkip }: AuthScreenProps) {
             </div>
           )}
 
-          <button
+          <Button
             type="submit"
-            disabled={loading}
-            className="w-full py-3 bg-amber-400 hover:bg-amber-300 text-black font-bold rounded-xl transition-colors disabled:opacity-50"
+            loading={loading}
+            className="w-full py-3 rounded-xl"
           >
-            {loading ? 'Loading...' : mode === 'register' ? 'Create Account' : 'Sign In'}
-          </button>
+            {mode === 'register' ? 'Create Account' : 'Sign In'}
+          </Button>
         </form>
 
         {/* Toggle */}
@@ -130,6 +134,7 @@ export default function AuthScreen({ onLogin, onSkip }: AuthScreenProps) {
           <button
             onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
             className="text-zinc-400 hover:text-amber-400 text-sm"
+            aria-label={mode === 'login' ? "Switch to registration" : "Switch to login"}
           >
             {mode === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
           </button>

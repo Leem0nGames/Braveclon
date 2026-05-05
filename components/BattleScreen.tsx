@@ -266,7 +266,11 @@ export default function BattleScreen({ state, stageId, onEnd }: { state: PlayerS
 
       {/* Top HUD */}
       <div className="relative z-10 p-2 flex justify-between items-start">
-        <div className="bg-black/50 p-2 rounded text-xs font-mono">
+        <div
+          className="bg-black/50 p-2 rounded text-xs font-mono"
+          aria-live="polite"
+          aria-atomic="false"
+        >
           {combatLog.map((log, i) => (
             <div key={i} className="text-zinc-300">{log}</div>
           ))}

@@ -29,13 +29,17 @@ export function UnitSprite({ unit, onClick, interactive, hitEffectElement, hideS
     dead: { opacity: 0.3, filter: "grayscale(100%)", scale: 0.9, transition: { duration: 0.5 } }
   };
 
+  const unitLabel = `${unit.template.name}, HP ${Math.round(hpPercent)}%${isBbReady ? ', Brave Burst Ready' : ''}${unit.isDead ? ', Fainted' : ''}`;
+
   return (
-    <motion.div 
-      className={`relative flex flex-col items-center ${interactive && isBbReady ? 'cursor-pointer hover:scale-105 transition-transform' : ''}`}
+    <motion.button
+      className={`relative flex flex-col items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 rounded-lg p-1 ${interactive && isBbReady ? 'cursor-pointer hover:scale-105 transition-transform' : ''}`}
       onClick={onClick}
       variants={variants}
       initial="idle"
       animate={unit.isDead ? "dead" : unit.actionState}
+      aria-label={unitLabel}
+      disabled={!interactive && !onClick}
     >
       {/* Status Bars */}
       {!hideStats && (
@@ -103,6 +107,6 @@ export function UnitSprite({ unit, onClick, interactive, hitEffectElement, hideS
           {unit.template.element}
         </div>
       )}
-    </motion.div>
+    </motion.button>
   );
 }

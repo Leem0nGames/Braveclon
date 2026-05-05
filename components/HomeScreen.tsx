@@ -74,14 +74,23 @@ export default function HomeScreen({ state, onNavigate, onStartBattle, timeToNex
 
         {/* Right: Info/Mail/Book Icons */}
         <div className="flex items-center gap-1">
-          <button className="w-7 h-7 rounded-lg bg-zinc-800/80 flex items-center justify-center text-zinc-300 hover:bg-zinc-700 transition-colors">
-            <span className="text-xs">📫</span>
+          <button
+            aria-label="Mailbox"
+            className="w-7 h-7 rounded-lg bg-zinc-800/80 flex items-center justify-center text-zinc-300 hover:bg-zinc-700 transition-colors"
+          >
+            <span className="text-xs" aria-hidden="true">📫</span>
           </button>
-          <button className="w-7 h-7 rounded-lg bg-zinc-800/80 flex items-center justify-center text-zinc-300 hover:bg-zinc-700 transition-colors">
-            <span className="text-xs">📧</span>
+          <button
+            aria-label="Messages"
+            className="w-7 h-7 rounded-lg bg-zinc-800/80 flex items-center justify-center text-zinc-300 hover:bg-zinc-700 transition-colors"
+          >
+            <span className="text-xs" aria-hidden="true">📧</span>
           </button>
-          <button className="w-7 h-7 rounded-lg bg-zinc-800/80 flex items-center justify-center text-zinc-300 hover:bg-zinc-700 transition-colors">
-            <span className="text-xs">📖</span>
+          <button
+            aria-label="Encyclopedia"
+            className="w-7 h-7 rounded-lg bg-zinc-800/80 flex items-center justify-center text-zinc-300 hover:bg-zinc-700 transition-colors"
+          >
+            <span className="text-xs" aria-hidden="true">📖</span>
           </button>
         </div>
       </div>
@@ -92,20 +101,29 @@ export default function HomeScreen({ state, onNavigate, onStartBattle, timeToNex
       <div className="flex justify-end px-3 py-2 bg-zinc-900/50 border-b border-zinc-800/50">
         <div className="flex items-center gap-3">
           {/* Hearts */}
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-red-500/10 border border-red-500/30">
-            <span className="text-red-400 text-sm">❤️</span>
+          <div
+            aria-label={`Energy: ${state.energy} out of ${state.maxEnergy}`}
+            className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-red-500/10 border border-red-500/30"
+          >
+            <span className="text-red-400 text-sm" aria-hidden="true">❤️</span>
             <span className="text-xs font-bold text-red-300">{state.energy}/{state.maxEnergy}</span>
           </div>
           
           {/* Zel */}
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-green-500/10 border border-green-500/30">
-            <span className="text-green-400 text-sm">💰</span>
+          <div
+            aria-label={`Zel: ${state.zel.toLocaleString()}`}
+            className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-green-500/10 border border-green-500/30"
+          >
+            <span className="text-green-400 text-sm" aria-hidden="true">💰</span>
             <span className="text-xs font-bold text-green-300">{state.zel.toLocaleString()}</span>
           </div>
           
           {/* Gems */}
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-purple-500/10 border border-purple-500/30">
-            <span className="text-purple-400 text-sm">💎</span>
+          <div
+            aria-label={`Gems: ${state.gems}`}
+            className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-purple-500/10 border border-purple-500/30"
+          >
+            <span className="text-purple-400 text-sm" aria-hidden="true">💎</span>
             <span className="text-xs font-bold text-purple-300">{state.gems}</span>
           </div>
         </div>
@@ -130,8 +148,9 @@ export default function HomeScreen({ state, onNavigate, onStartBattle, timeToNex
                     ? 'bg-gradient-to-b from-amber-500/20 to-orange-600/20 border-amber-500 shadow-lg shadow-amber-500/20' 
                     : 'bg-zinc-800/50 border-zinc-700 hover:bg-zinc-700/50'}
                 `}
+                aria-pressed={selectedReel === item.id}
               >
-                <img src={item.icon} alt={item.label} className="w-8 h-8 mx-auto mb-1 invert brightness-200" />
+                <img src={item.icon} alt="" aria-hidden="true" className="w-8 h-8 mx-auto mb-1 invert brightness-200" />
                 <div className={`text-[10px] font-bold text-center ${selectedReel === item.id ? 'text-amber-400' : 'text-zinc-400'}`}>
                   {item.label}
                 </div>
@@ -228,8 +247,9 @@ export default function HomeScreen({ state, onNavigate, onStartBattle, timeToNex
                 ? 'bg-gradient-to-t from-amber-500/20 to-transparent' 
                 : 'hover:bg-zinc-800'}
             `}
+            aria-current={item.id === 'home' ? 'page' : undefined}
           >
-            <img src={item.icon} alt={item.label} className={`w-5 h-5 ${item.id === 'home' ? 'invert brightness-200' : 'invert brightness-150'}`} />
+            <img src={item.icon} alt="" aria-hidden="true" className={`w-5 h-5 ${item.id === 'home' ? 'invert brightness-200' : 'invert brightness-150'}`} />
             <div className={`text-[8px] font-medium ${item.id === 'home' ? 'text-amber-400' : 'text-zinc-500'}`}>
               {item.label}
             </div>
